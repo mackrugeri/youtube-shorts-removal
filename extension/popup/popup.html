@@ -33,10 +33,13 @@
                aria-describedby="hide-description" disabled>
       </label>
 
-      <div class="feedback">
-        <p id="status" role="status">Loading your preference…</p>
-        <p id="error" role="alert"></p>
-        <button type="button" id="retry" hidden>Retry</button>
+      <div class="feedback" id="feedback" data-state="pending">
+        <span class="status-mark" aria-hidden="true"></span>
+        <div class="status-copy">
+          <p id="status" role="status" aria-atomic="true">Loading your preference…</p>
+          <p id="error" role="alert" aria-atomic="true"></p>
+          <button type="button" id="retry" hidden>Retry</button>
+        </div>
       </div>
 
       <section class="confirmation" id="confirmation" aria-labelledby="confirm-title" hidden>

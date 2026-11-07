@@ -147,8 +147,30 @@ input[role="switch"]:disabled { opacity: .62; cursor: default; }
   font-size: .86rem;
 }
 
+.feedback {
+  --indicator: var(--muted);
+  display: grid;
+  grid-template-columns: 9px minmax(0, 1fr);
+  gap: 9px;
+}
+
+.feedback[data-state="pending"] { --indicator: var(--focus); }
+.feedback[data-state="success"] { --indicator: #258760; }
+.feedback[data-state="warning"] { --indicator: #a86d15; }
+.feedback[data-state="error"] { --indicator: var(--error); }
+
+.status-mark {
+  width: 8px;
+  height: 8px;
+  margin-top: .35em;
+  border: 1px solid var(--indicator);
+  border-radius: 50%;
+  background: var(--indicator);
+}
+
+.feedback[data-state="pending"] .status-mark { background: transparent; }
+#status { color: var(--text); }
 #error { color: var(--error); }
-#error:empty { margin: 0; }
 #retry { margin-top: 8px; }
 
 .confirmation h2 {
