@@ -2,7 +2,9 @@
 
 Design for a desktop browser extension that lets the user turn **Hide Shorts** on or off. When on, recognized YouTube Shorts surfaces and their complete dedicated containers are removed, and direct Shorts routes are redirected away. Ordinary YouTube remains usable.
 
-**Status: documentation and proposed architecture only.** There is no extension, manifest, source code, dependency setup, or verified browser behavior in this project yet. Do not treat the acceptance criteria as completed tests.
+**Status: loadable Chrome UI preview.** The popup saves the Hide Shorts preference locally. Shorts filtering, route redirects, and tab restoration are planned.
+
+To try the popup, open Chrome's Extensions page, enable Developer mode, and choose **Load unpacked**. Select the project's `extension` folder, then open **YouTube Shorts Removal** from the Extensions menu.
 
 ## Project documentation
 

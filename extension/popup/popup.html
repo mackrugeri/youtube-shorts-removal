@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>YouTube Shorts Removal</title>
+  <link rel="stylesheet" href="popup.css">
+  <script src="popup.js" type="module"></script>
+</head>
+<body>
+  <main>
+    <header class="hero">
+      <div class="hero-top">
+        <div class="mark" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <rect x="4" y="6" width="16" height="12" rx="4" stroke="currentColor" stroke-width="1.6"/>
+            <path d="m10 9 5 3-5 3V9Z" fill="currentColor"/>
+          </svg>
+        </div>
+        <span class="badge">UI preview</span>
+      </div>
+      <h1>YouTube Shorts Removal</h1>
+      <p>A quieter YouTube, one switch away.</p>
+    </header>
+
+    <section class="settings" aria-label="Shorts settings">
+      <label class="setting">
+        <span>
+          <strong id="hide-label">Hide Shorts</strong>
+          <span class="setting-description" id="hide-description">Your preference for desktop YouTube</span>
+        </span>
+        <input type="checkbox" id="hide-shorts" role="switch" aria-labelledby="hide-label"
+               aria-describedby="hide-description" disabled>
+      </label>
+
+      <div class="feedback">
+        <p id="status" role="status">Loading your preference…</p>
+        <p id="error" role="alert"></p>
+        <button type="button" id="retry" hidden>Retry</button>
+      </div>
+
+      <section class="confirmation" id="confirmation" aria-labelledby="confirm-title" hidden>
+        <h2 id="confirm-title">Turn off Hide Shorts?</h2>
+        <p id="confirm-description">When filtering is available, turning it off will reload YouTube tabs. Playback will stop and unsaved page changes may be lost.</p>
+        <div class="actions">
+          <button type="button" id="cancel" aria-describedby="confirm-description">Cancel</button>
+          <button type="button" id="confirm" class="primary">Turn off</button>
+        </div>
+      </section>
+    </section>
+
+    <footer>This preview saves your preference. Shorts filtering is still in development.</footer>
+  </main>
+</body>
+</html>

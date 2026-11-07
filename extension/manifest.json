@@ -1,0 +1,15 @@
+{
+  "manifest_version": 3,
+  "name": "YouTube Shorts Removal",
+  "version": "0.1.0",
+  "description": "Preview the Hide Shorts controls for desktop YouTube.",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "YouTube Shorts Removal",
+    "default_popup": "popup/popup.html"
+  },
+  "background": {
+    "service_worker": "background/service-worker.js",
+    "type": "module"
+  }
+}
