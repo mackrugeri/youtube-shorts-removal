@@ -21,6 +21,24 @@ async function syncRules(enabled) {
     : { disableRulesetIds: [rulesetId] });
 }
 
+async function tabStatus(settings, reload = false) {
+  const tabs = await chrome.tabs.query({ url: youtubePatterns }).catch(() => null);
+  if (!tabs) return { settings, needsReload: true };
+  const applied = await Promise.allSettled(tabs.map(async ({ id }) => {
+    if (reload) {
+      await chrome.tabs.reload(id);
+      return;
+    }
+
+    const reply = await chrome.tabs.sendMessage(id, { type: 'settings:refresh' }, { frameId: 0 })
+      .catch(() => null);
+    if (reply?.needsReload || (settings.hideShorts && reply?.revision !== settings.revision)) {
+      throw new Error('Tab needs to reload');
+    }
+  }));
+  return { settings, needsReload: applied.some((result) => result.status === 'rejected') };
+}
+
 async function applySettings(current, hideShorts) {
   const settings = { ...current, hideShorts, revision: current.revision + 1 };
   await syncRules(hideShorts);
@@ -31,17 +49,7 @@ async function applySettings(current, hideShorts) {
     throw error;
   }
 
-  const tabs = await chrome.tabs.query({ url: youtubePatterns }).catch(() => null);
-  if (!tabs) return { settings, needsReload: true };
-  const applied = await Promise.allSettled(tabs.map(async ({ id }) => {
-    if (hideShorts) {
-      const reply = await chrome.tabs.sendMessage(id, { type: 'settings:refresh' }, { frameId: 0 });
-      if (reply?.revision !== settings.revision) throw new Error('Tab has not applied settings');
-    } else {
-      await chrome.tabs.reload(id);
-    }
-  }));
-  return { settings, needsReload: applied.some((result) => result.status === 'rejected') };
+  return settings;
 }
 
 function reconcileRules() {
@@ -61,12 +69,13 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
 
   const request = serialize(async () => {
     const current = await readSettings();
-    if (type === 'settings:get' || hideShorts === current.hideShorts) {
-      await syncRules(current.hideShorts);
-      return { settings: current };
-    }
+    const changed = type === 'settings:set' && hideShorts !== current.hideShorts;
+    const settings = changed ? await applySettings(current, hideShorts) : current;
+    if (!changed) await syncRules(settings.hideShorts);
 
-    return applySettings(current, hideShorts);
+    const hasAccess = !settings.hideShorts || await chrome.permissions.contains({ origins: youtubePatterns });
+    if (!hasAccess) return { settings, siteAccessNeeded: true };
+    return tabStatus(settings, changed && !hideShorts);
   });
 
   request.then(

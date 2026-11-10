@@ -2,9 +2,9 @@
 
 Design for a desktop browser extension that lets the user turn **Hide Shorts** on or off. When on, recognized YouTube Shorts surfaces and their complete dedicated containers are removed, and direct Shorts routes are redirected away. Ordinary YouTube remains usable.
 
-**Status: loadable Chrome UI preview.** The popup saves the Hide Shorts preference locally. Shorts filtering, route redirects, and tab restoration are planned.
+**Status: unpacked Chrome extension.** The popup controls Shorts removal and route blocking on supported desktop YouTube pages. Turning it off reloads open YouTube tabs to restore removed sections. Browser fixture tests cover core flows. Live YouTube layout and playback compatibility still need wider validation.
 
-To try the popup, open Chrome's Extensions page, enable Developer mode, and choose **Load unpacked**. Select the project's `extension` folder, then open **YouTube Shorts Removal** from the Extensions menu.
+To try the extension, open Chrome's Extensions page, enable Developer mode, and choose **Load unpacked**. Select the project's `extension` folder, then open **YouTube Shorts Removal** from the Extensions menu.
 
 ## Project documentation
 
@@ -13,6 +13,10 @@ To try the popup, open Chrome's Extensions page, enable Developer mode, and choo
 - [Testing and acceptance](docs/testing.md): concrete release gates and coverage matrix.
 - [Implementation roadmap](docs/roadmap.md): phased future work.
 - [Technical references](docs/references.md): official sources reviewed on November 6, 2026.
+
+## Run the checks
+
+From the project root, run `node tests/unit/routes.test.js` for URL fixtures and `python3 tests/browser/acceptance.py` for a headless Chrome smoke test using a temporary profile. On systems where Chrome is installed elsewhere, set `CHROME_BIN` to its executable. The browser test serves controlled YouTube fixtures and does not use a signed-in profile.
 
 ## Initial decisions
 

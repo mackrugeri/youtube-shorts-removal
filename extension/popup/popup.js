@@ -9,17 +9,6 @@ const confirm = document.querySelector('#confirm');
 
 let settings;
 
-// Open the popup page with ?preview=<state> to inspect release copy and styling.
-const releasePreviews = new Map([
-  ['applying', ['pending', 'Applying changes…', 'Updating your YouTube tabs.', true]],
-  ['hidden', ['success', 'Shorts hidden', 'Hide Shorts is active on supported YouTube tabs.', true]],
-  ['off', ['neutral', 'Hide Shorts is off', 'YouTube is back to its usual layout.', false]],
-  ['site-access', ['warning', 'YouTube access needed',
-    'Allow this extension to access YouTube in Chrome’s Extensions menu, then reopen the popup.', true]],
-  ['reload', ['warning', 'Reload needed',
-    'Reload any open YouTube tabs that still show the previous layout.', false]],
-]);
-
 function renderStatus(state, title, detail = '', canRetry = false) {
   feedback.dataset.state = state;
   const isError = state === 'error';
@@ -39,7 +28,7 @@ async function update(hideShorts) {
 
   toggle.disabled = true;
   showConfirmation(false);
-  renderStatus('pending', saving ? 'Saving your preference…' : 'Loading your preference…');
+  renderStatus('pending', saving ? 'Applying changes…' : 'Loading your preference…');
 
   try {
     const response = await chrome.runtime.sendMessage(
@@ -48,12 +37,22 @@ async function update(hideShorts) {
     if (typeof response?.settings?.hideShorts !== 'boolean') throw new Error('Invalid response');
 
     settings = response.settings;
-    renderStatus('success', settings.hideShorts ? 'Preference saved: On' : 'Preference saved: Off');
+    if (response.siteAccessNeeded) {
+      renderStatus('warning', 'YouTube access needed.',
+        'Allow access to YouTube in Chrome’s Extensions menu, then select Retry.', true);
+    } else if (response.needsReload) {
+      renderStatus('warning', 'Reload needed.',
+        'Reload open YouTube tabs to finish applying your preference, then select Retry.', true);
+    } else if (settings.hideShorts) {
+      renderStatus('success', 'Hide Shorts is on.');
+    } else {
+      renderStatus('neutral', 'Hide Shorts is off.');
+    }
   } catch {
     // Re-read before allowing another change because a reply can fail after a save.
     settings = undefined;
     const message = saving
-      ? 'Could not confirm the save. Retry to check your preference.'
+      ? 'Could not confirm the change. Select Retry to check the current state.'
       : 'Could not load your preference. Select Retry to check again.';
     renderStatus('error', message, '', true);
   } finally {
@@ -89,12 +88,4 @@ confirmation.addEventListener('keydown', (event) => {
 
 confirm.addEventListener('click', () => update(false));
 retry.addEventListener('click', () => update());
-const preview = releasePreviews.get(new URLSearchParams(location.search).get('preview'));
-if (preview) {
-  const [state, title, detail, checked] = preview;
-  toggle.checked = checked;
-  document.querySelector('footer').textContent = 'Sample status for the release popup.';
-  renderStatus(state, title, detail);
-} else {
-  update();
-}
+update();

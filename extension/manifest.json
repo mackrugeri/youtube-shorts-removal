@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "YouTube Shorts Removal",
   "version": "0.1.0",
-  "description": "Preview the Hide Shorts controls for desktop YouTube.",
+  "description": "Hide Shorts sections and block Shorts links on desktop YouTube.",
   "permissions": [
     "storage",
     "declarativeNetRequestWithHostAccess",

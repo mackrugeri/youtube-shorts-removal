@@ -6,6 +6,7 @@
   let enabled = false;
   let revision = -1;
   let frame = 0;
+  let removedContent = false;
 
   function blockCurrentRoute() {
     if (!enabled || !routes.isShorts(location.href)) return false;
@@ -38,7 +39,7 @@
     if (message?.type === 'navigation:check') {
       respond({ blocked: blockCurrentRoute() });
     } else if (message?.type === 'settings:refresh') {
-      refresh().then(() => respond({ revision }));
+      refresh().then(() => respond({ revision, needsReload: !enabled && removedContent }));
       return true;
     }
   });
@@ -58,6 +59,7 @@
     // Keep focus in the document when the focused card or link disappears.
     if (item.contains(document.activeElement)) document.activeElement.blur();
     item.remove();
+    removedContent = true;
   }
 
   function clean(node) {
