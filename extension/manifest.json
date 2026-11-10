@@ -3,7 +3,11 @@
   "name": "YouTube Shorts Removal",
   "version": "0.1.0",
   "description": "Preview the Hide Shorts controls for desktop YouTube.",
-  "permissions": ["storage"],
+  "permissions": [
+    "storage",
+    "declarativeNetRequestWithHostAccess",
+    "webNavigation"
+  ],
   "icons": {
     "16": "icons/icon-16.png",
     "32": "icons/icon-32.png",
@@ -23,5 +27,33 @@
   "background": {
     "service_worker": "background/service-worker.js",
     "type": "module"
+  },
+  "host_permissions": [
+    "*://www.youtube.com/*",
+    "*://youtube.com/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://www.youtube.com/*",
+        "*://youtube.com/*"
+      ],
+      "js": [
+        "content/content.js"
+      ],
+      "css": [
+        "content/early.css"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "shorts_redirect",
+        "enabled": false,
+        "path": "rules/shorts-redirect.json"
+      }
+    ]
   }
 }
