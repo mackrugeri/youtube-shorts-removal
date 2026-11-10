@@ -34,8 +34,13 @@
   }, true);
 
   chrome.runtime.onMessage.addListener((message, sender, respond) => {
-    if (message?.type !== 'navigation:check' || sender.id !== chrome.runtime.id) return;
-    respond({ blocked: blockCurrentRoute() });
+    if (sender.id !== chrome.runtime.id) return;
+    if (message?.type === 'navigation:check') {
+      respond({ blocked: blockCurrentRoute() });
+    } else if (message?.type === 'settings:refresh') {
+      refresh().then(() => respond({ revision }));
+      return true;
+    }
   });
 
   function isShortsLink(link) {
@@ -120,7 +125,8 @@
   });
 
   function apply(settings) {
-    if (typeof settings?.hideShorts !== 'boolean' || settings.revision < revision) return;
+    if (typeof settings?.hideShorts !== 'boolean' ||
+        !Number.isSafeInteger(settings.revision) || settings.revision <= revision) return;
     revision = settings.revision;
     enabled = settings.hideShorts;
     document.documentElement.toggleAttribute('data-shorts-removal-off', !enabled);
@@ -150,7 +156,11 @@
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === 'local' && changes.settings) refresh();
   });
-  addEventListener('pageshow', refresh);
+  addEventListener('pageshow', () => {
+    refresh().then(() => {
+      if (enabled && !blockCurrentRoute()) enqueue(document.documentElement);
+    });
+  });
   document.addEventListener('yt-navigate-finish', () => {
     if (enabled) enqueue(document.documentElement);
   });
