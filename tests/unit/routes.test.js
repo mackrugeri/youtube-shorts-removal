@@ -2,7 +2,11 @@ const assert = require('node:assert/strict');
 require('../../extension/shared/routes.js');
 const fixtures = require('../fixtures/routes.json');
 const routes = globalThis.shortsRoutes;
-const rule = new RegExp(routes.redirectPattern);
+const [redirect] = require('../../extension/rules/shorts-redirect.json');
+assert.equal(redirect.condition.regexFilter, routes.redirectPattern);
+assert.equal(redirect.condition.isUrlFilterCaseSensitive, true);
+assert.equal(redirect.action.redirect.url, routes.home);
+const rule = new RegExp(redirect.condition.regexFilter);
 
 for (const url of fixtures.shorts) {
   assert.equal(routes.isShorts(url), true, url);

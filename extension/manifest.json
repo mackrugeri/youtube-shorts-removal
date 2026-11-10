@@ -53,7 +53,7 @@
     "rule_resources": [
       {
         "id": "shorts_redirect",
-        "enabled": false,
+        "enabled": true,
         "path": "rules/shorts-redirect.json"
       }
     ]

@@ -7,6 +7,37 @@
   let revision = -1;
   let frame = 0;
 
+  function blockCurrentRoute() {
+    if (!enabled || !routes.isShorts(location.href)) return false;
+    document.documentElement.setAttribute('data-shorts-removal-blocked', '');
+    for (const media of document.querySelectorAll('video, audio')) media.pause();
+    location.replace(routes.home);
+    return true;
+  }
+
+  // Cancel eligible same-document transitions before YouTube enters the player.
+  navigation.addEventListener('navigate', (event) => {
+    if (!enabled || !event.cancelable || !routes.isShorts(event.destination.url)) return;
+    event.preventDefault();
+    queueMicrotask(() => {
+      if (enabled) location.replace(routes.home);
+    });
+  });
+  navigation.addEventListener('currententrychange', blockCurrentRoute);
+  addEventListener('popstate', blockCurrentRoute);
+  addEventListener('hashchange', blockCurrentRoute);
+  document.addEventListener('play', (event) => {
+    if (enabled && routes.isShorts(location.href) && event.target instanceof HTMLMediaElement) {
+      event.target.pause();
+      blockCurrentRoute();
+    }
+  }, true);
+
+  chrome.runtime.onMessage.addListener((message, sender, respond) => {
+    if (message?.type !== 'navigation:check' || sender.id !== chrome.runtime.id) return;
+    respond({ blocked: blockCurrentRoute() });
+  });
+
   function isShortsLink(link) {
     return routes.isShorts(link.href) || routes.isChannelShorts(link.href);
   }
@@ -60,6 +91,7 @@
 
   function flush() {
     frame = 0;
+    if (blockCurrentRoute()) return;
     const deadline = performance.now() + 4;
     for (const node of pending) {
       pending.delete(node);
@@ -93,11 +125,13 @@
     enabled = settings.hideShorts;
     document.documentElement.toggleAttribute('data-shorts-removal-off', !enabled);
     if (enabled) {
+      if (blockCurrentRoute()) return;
       observer.observe(document, {
         childList: true, subtree: true, attributes: true, attributeFilter: ['href'],
       });
       enqueue(document.documentElement);
     } else {
+      document.documentElement.removeAttribute('data-shorts-removal-blocked');
       observer.disconnect();
       cancelAnimationFrame(frame);
       frame = 0;

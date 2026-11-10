@@ -7,3 +7,7 @@
 ) {
   display: none !important;
 }
+
+:root[data-shorts-removal-blocked] :is(ytd-shorts, ytd-reel-video-renderer, video) {
+  visibility: hidden !important;
+}
