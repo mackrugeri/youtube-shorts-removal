@@ -1,0 +1,4 @@
+{
+  "shorts": ["https://www.youtube.com/shorts", "https://www.youtube.com/shorts/", "http://youtube.com/shorts/abc?x=1#t", "https://www.youtube.com:8443/shorts#t"],
+  "ordinary": ["https://www.youtube.com/shortsXYZ", "https://www.youtube.com/Shorts/abc", "https://www.youtube.com/watch?next=/shorts/abc", "https://www.youtube.com/@creator/shorts", "https://m.youtube.com/shorts/abc", "https://example.com/youtube.com/shorts/abc"]
+}

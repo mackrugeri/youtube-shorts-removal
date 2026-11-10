@@ -39,6 +39,8 @@
         "*://youtube.com/*"
       ],
       "js": [
+        "shared/routes.js",
+        "shared/selectors.js",
         "content/content.js"
       ],
       "css": [
