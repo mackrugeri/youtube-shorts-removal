@@ -1,0 +1,9 @@
+:root:not([data-shorts-removal-off]) :is(
+  ytd-reel-shelf-renderer,
+  ytd-reel-item-renderer,
+  ytm-shorts-lockup-view-model,
+  yt-shorts-lockup-view-model,
+  ytd-shorts-lockup-view-model
+) {
+  display: none !important;
+}
