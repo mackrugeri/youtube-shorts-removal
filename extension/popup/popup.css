@@ -30,7 +30,9 @@
 [hidden] { display: none !important; }
 
 body {
-  width: min(360px, 100vw);
+  /* Chrome measures the document to size the popup. Using vw here feeds
+     the popup's initial width back into that measurement. */
+  width: 344px;
   margin: 0;
   background: var(--page);
   color: var(--text);
@@ -59,6 +61,7 @@ main { padding: 14px; }
 
 .mark {
   display: grid;
+  flex: none;
   place-items: center;
   width: 40px;
   height: 40px;
@@ -70,6 +73,7 @@ main { padding: 14px; }
   border-radius: 99px;
   font-size: .78rem;
   font-weight: 650;
+  white-space: nowrap;
 }
 
 h1 {
@@ -98,6 +102,7 @@ p { margin: 0; }
 }
 
 .setting strong { font-size: 1.07rem; }
+.setting > span { min-width: 0; }
 
 .setting-description {
   display: block;

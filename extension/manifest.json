@@ -41,10 +41,12 @@
       "js": [
         "shared/routes.js",
         "shared/selectors.js",
-        "content/content.js"
+        "content/content.js",
+        "content/search-control.js"
       ],
       "css": [
-        "content/early.css"
+        "content/early.css",
+        "content/search-control.css"
       ],
       "run_at": "document_start"
     }

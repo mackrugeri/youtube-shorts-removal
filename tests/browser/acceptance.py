@@ -77,6 +77,16 @@ with tempfile.TemporaryDirectory() as profile:
                     time.sleep(.05)
                 raise AssertionError(condition)
             wait("document.querySelector('#status')?.textContent === 'Hide Shorts is on.'")
+            for width in (140, 344):
+                call('Emulation.setDeviceMetricsOverride',
+                     {'width': width, 'height': 640, 'deviceScaleFactor': 1, 'mobile': False}, target=True)
+                assert evaluate('document.body.getBoundingClientRect().width') == 344
+                assert evaluate("""(() => {
+                  const button = document.querySelector('#hide-shorts').getBoundingClientRect();
+                  const panel = document.querySelector('.settings').getBoundingClientRect();
+                  return button.right <= panel.right && document.querySelector('main').scrollWidth === 344;
+                })()""")
+            print('PASS: popup keeps its intended width and fits its switch')
             assert evaluate("""(async () => {
               const manifest = chrome.runtime.getManifest();
               const icons = {...manifest.icons, ...manifest.action.default_icon};
@@ -123,6 +133,8 @@ with tempfile.TemporaryDirectory() as profile:
             wait("document.querySelector('#status')?.textContent === 'Hide Shorts is on.'")
             print('PASS: keyboard Space/Escape, focus restoration, error and retry')
             fixture = Path('tests/fixtures/shorts-surfaces.html').read_bytes()
+            call('Emulation.setDeviceMetricsOverride',
+                 {'width': 960, 'height': 640, 'deviceScaleFactor': 1, 'mobile': False}, target=True)
             call('Fetch.enable', {'patterns': [{'urlPattern':'*://*.youtube.com/*', 'resourceType':'Document'}]}, target=True)
             call('Page.navigate', {'url': 'https://www.youtube.com/'}, target=True)
             wait("document.querySelector('#normal-card') && !document.querySelector('#shelf, #short-card, #short-guide')")
@@ -145,13 +157,37 @@ with tempfile.TemporaryDirectory() as profile:
             print('PASS: direct redirect and synchronous SPA route cancellation')
             print('PASS: dedicated shelf, mixed cards, guide and late insertion')
             youtube_session = session
+            control = '#voice-search + #shorts-removal-search-control'
+            wait(f'document.querySelector("{control}")?.getAttribute("aria-checked") === "true"')
+            evaluate('document.querySelector("ytd-masthead").replaceWith(document.querySelector("ytd-masthead").cloneNode(true))')
+            evaluate('document.querySelector("#shorts-removal-search-control").remove()')
+            wait(f'document.querySelectorAll("{control}").length === 1')
+            call('Emulation.setDeviceMetricsOverride',
+                 {'width': 640, 'height': 640, 'deviceScaleFactor': 1, 'mobile': False}, target=True)
+            assert evaluate(f"""(() => {{
+                const button = document.querySelector('{control}');
+                return button.offsetWidth === 36 &&
+                  getComputedStyle(button.querySelector('.shorts-removal-control-label')).display === 'none' &&
+                  button.getAttribute('aria-label') === 'Hide Shorts';
+            }})()""")
+            evaluate(f'document.querySelector("{control}").focus()')
+            press(' ', 'Space', 32)
+            wait('document.querySelector("#shorts-removal-confirmation")?.open')
+            press('Escape', 'Escape', 27)
+            wait('!document.querySelector("#shorts-removal-confirmation")?.open')
+            assert evaluate(f'document.querySelector("{control}").getAttribute("aria-checked")') == 'true'
+            evaluate(f'document.querySelector("{control}").focus()')
+            press(' ', 'Space', 32)
+            evaluate('document.querySelector("#shorts-removal-confirmation button:last-child").focus()')
+            press(' ', 'Space', 32)
+            wait(f'document.querySelector("{control}")?.getAttribute("aria-checked") === "false" && document.querySelector("#shelf")')
+            assert evaluate(f'document.querySelector("{control} .shorts-removal-control-state").textContent') == 'Off'
+            print('PASS: search control mounts beside voice search, remounts and confirms disabling')
             popup = call('Target.createTarget', {'url': 'about:blank'})['targetId']
             popup_session = call('Target.attachToTarget', {'targetId': popup, 'flatten': True})['sessionId']
             session = popup_session
             call('Page.navigate', {'url': url}, target=True)
-            wait("document.querySelector('#hide-shorts')?.checked === true")
-            result = evaluate("chrome.runtime.sendMessage({type:'settings:set',hideShorts:false})")
-            assert result['settings']['hideShorts'] is False and not result.get('needsReload'), result
+            wait("document.querySelector('#status')?.textContent === 'Hide Shorts is off.'")
             evaluate("chrome.declarativeNetRequest.updateEnabledRulesets({enableRulesetIds:['shorts_redirect']})")
             assert evaluate("chrome.runtime.sendMessage({type:'settings:get'}).then(reply => reply.settings.hideShorts)") is False
             assert evaluate("chrome.declarativeNetRequest.getEnabledRulesets()") == []
@@ -160,18 +196,18 @@ with tempfile.TemporaryDirectory() as profile:
             wait("document.querySelector('#shelf') && document.querySelector('#short-card')")
             call('Page.navigate', {'url': 'https://www.youtube.com/shorts/allowed'}, target=True)
             wait("location.pathname === '/shorts/allowed' && document.querySelector('#shelf')")
-            session = popup_session
-            result = evaluate("chrome.runtime.sendMessage({type:'settings:set',hideShorts:true})")
-            assert result['settings']['hideShorts'] is True, result
-            session = youtube_session
             call('Target.activateTarget', {'targetId': tab})
+            evaluate(f'document.querySelector("{control}").focus()')
+            press(' ', 'Space', 32)
             for _ in range(80):
                 if evaluate("location.pathname === '/' && Boolean(document.querySelector('#normal-card')) && !document.querySelector('#shelf')"):
                     break
                 time.sleep(.05)
             else:
-                raise AssertionError((result, evaluate('[location.href, document.title, document.documentElement.outerHTML.slice(0,700)]')))
-            print('PASS: disable reload restores Shorts, routes reopen, enable reapplies filtering')
+                raise AssertionError(evaluate('[location.href, document.title, document.documentElement.outerHTML.slice(0,700)]'))
+            wait(f'document.querySelector("{control}")?.getAttribute("aria-checked") === "true"')
+            assert evaluate(f'document.querySelector("{control} .shorts-removal-control-state").textContent') == 'On'
+            print('PASS: header switch turns filtering off and on, with matching visible state')
             session = popup_session
             call('Page.reload', {}, target=True)
             wait("document.querySelector('#status')?.textContent === 'Hide Shorts is on.'")

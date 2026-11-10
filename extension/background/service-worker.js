@@ -3,7 +3,7 @@ import '../shared/routes.js';
 import { readSettings, SETTINGS_KEY } from '../shared/settings.js';
 
 const rulesetId = 'shorts_redirect';
-const { hosts, home, isShorts } = globalThis.shortsRoutes;
+const { hosts, home, isShorts, parse } = globalThis.shortsRoutes;
 const youtubePatterns = hosts.map((host) => `*://${host}/*`);
 let queue = Promise.resolve();
 
@@ -62,8 +62,11 @@ chrome.runtime.onInstalled.addListener(reconcileRules);
 chrome.runtime.onStartup.addListener(reconcileRules);
 
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
-  if (sender.url !== chrome.runtime.getURL('popup/popup.html')) return;
   const { type, hideShorts } = message ?? {};
+  const fromPopup = sender.url === chrome.runtime.getURL('popup/popup.html');
+  const fromSearchControl = type === 'settings:set' && sender.id === chrome.runtime.id &&
+    sender.frameId === 0 && sender.tab && parse(sender.url);
+  if (!fromPopup && !fromSearchControl) return;
   if (type !== 'settings:get' &&
       !(type === 'settings:set' && typeof hideShorts === 'boolean')) return;
 
