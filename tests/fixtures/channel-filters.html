@@ -3,9 +3,11 @@
 <title>Channel filtering fixtures</title>
 <body>
 <ytd-masthead><div id="center"><input aria-label="Search"><button id="voice-search">Voice search</button></div></ytd-masthead>
-<ytd-rich-item-renderer id="focus-first">
+<ytd-rich-item-renderer id="focus-first" style="display:flex;flex-direction:column;justify-content:space-between;min-height:300px">
+  <div class="yt-lockup-metadata-view-model__text-container">
   <h3><a id="video-title" href="/watch?v=prankVideo1">Epic prank compilation</a></h3>
   <a href="/@unwanted">Unwanted Channel</a>
+  </div>
 </ytd-rich-item-renderer>
 <ytd-video-renderer id="focus-related">
   <h3><a id="video-title" href="/watch?v=otherPrank1">Another PRANK revealed</a></h3>

@@ -2,13 +2,44 @@
 
 [data-focus-filter-controls] {
   display: flex;
-  gap: 6px;
+  align-items: center;
+  gap: 4px;
   flex-wrap: wrap;
-  padding-block: 6px;
+  margin-top: 8px;
+  padding: 0;
   font: 12px/1.4 system-ui, sans-serif;
 }
 
-[data-focus-filter-controls] button,
+[data-focus-filter-controls] button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  gap: 5px;
+  min-height: 28px;
+  margin: 0;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  background: var(--yt-spec-badge-chip-background, #f2f2f2);
+  color: var(--yt-spec-text-secondary, #606060);
+  font: inherit;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+[data-focus-filter-controls] svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 #focus-filter-dialog button {
   border: 1px solid var(--yt-spec-10-percent-layer, #ddd);
   border-radius: 18px;
@@ -19,7 +50,10 @@
   cursor: pointer;
 }
 
-[data-focus-filter-controls] button:hover { background: var(--yt-spec-badge-chip-background, #eee); }
+[data-focus-filter-controls] button:hover:not(:disabled) {
+  background: #6733c3;
+  color: #fff;
+}
 [data-focus-filter-controls] button:disabled { opacity: .5; cursor: default; }
 
 #focus-filter-dialog {

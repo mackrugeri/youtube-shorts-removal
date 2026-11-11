@@ -217,6 +217,15 @@ with tempfile.TemporaryDirectory() as profile:
             call('Target.activateTarget', {'targetId': tab})
             call('Page.navigate', {'url': 'https://www.youtube.com/'}, target=True)
             wait('document.querySelectorAll("[data-focus-filter-controls]").length === 6')
+            assert evaluate("""(() => {
+              const metadata = document.querySelector('#focus-first .yt-lockup-metadata-view-model__text-container');
+              const actions = metadata.querySelector('[data-focus-filter-controls]');
+              const channel = metadata.querySelector('a[href="/@unwanted"]');
+              return actions?.parentElement === metadata &&
+                actions.getBoundingClientRect().top - channel.getBoundingClientRect().bottom < 20 &&
+                actions.querySelectorAll('svg').length === 2;
+            })()""")
+            print('PASS: compact video actions stay beside metadata in a full-height card')
 
             def save_block(card, channel, words):
                 selector = '[data-block-channel]' if channel else 'button:first-child'

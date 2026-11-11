@@ -29,6 +29,26 @@
   const cancel = dialog.querySelector('[type="button"]');
   const error = dialog.querySelector('.focus-filter-error');
 
+  function controlsHost(card) {
+    // Keep actions inside the metadata flow. Adding a second child to YouTube's
+    // full-height outer card can push it to the bottom of the entire grid row.
+    return card.querySelector('.yt-lockup-metadata-view-model__text-container') ??
+      card.querySelector('#meta') ??
+      card.querySelector('ytd-video-meta-block') ??
+      card.querySelector('h3')?.parentElement ??
+      card;
+  }
+
+  function actionIcon(path) {
+    const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('aria-hidden', 'true');
+    const shape = document.createElementNS(icon.namespaceURI, 'path');
+    shape.setAttribute('d', path);
+    icon.append(shape);
+    return icon;
+  }
+
   function metadata(card) {
     const titleLink = card.querySelector(
       'a#video-title, a#video-title-link, .yt-lockup-metadata-view-model__title a, h3 a',
@@ -118,14 +138,20 @@
     }
     if (existing) {
       existing.querySelector('[data-block-channel]').disabled = !video.channel;
+      const host = controlsHost(card);
+      if (existing.parentElement !== host) host.append(existing);
       return;
     }
 
     const controls = document.createElement('div');
     controls.setAttribute('data-focus-filter-controls', '');
+    controls.setAttribute('role', 'group');
+    controls.setAttribute('aria-label', 'Video filtering');
     const hide = document.createElement('button');
     hide.type = 'button';
     hide.textContent = 'Hide video';
+    hide.title = 'Hide this video and choose related keywords';
+    hide.prepend(actionIcon('M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.8 5.2A11.6 11.6 0 0112 5c6 0 10 7 10 7a17 17 0 01-3.1 3.8M6.2 6.2A20.8 20.8 0 002 12s4 7 10 7a11 11 0 005.8-1.8'));
     hide.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();
@@ -134,6 +160,7 @@
     const channel = document.createElement('button');
     channel.type = 'button';
     channel.textContent = 'Block channel';
+    channel.prepend(actionIcon('M21 12a9 9 0 11-18 0 9 9 0 0118 0ZM5.6 5.6l12.8 12.8'));
     channel.setAttribute('data-block-channel', '');
     channel.disabled = !video.channel;
     channel.title = video.channel ? 'Block this channel and related keywords' : 'Channel link unavailable on this card';
@@ -143,7 +170,7 @@
       if (event.isTrusted) open(card, 'channel', channel);
     });
     controls.append(hide, channel);
-    card.append(controls);
+    controlsHost(card).append(controls);
   }
 
   function flush() {
