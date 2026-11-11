@@ -2,7 +2,7 @@ globalThis.shortsSelectors = {
   dedicated: 'ytd-reel-shelf-renderer, ytd-reel-item-renderer, ytm-shorts-lockup-view-model, yt-shorts-lockup-view-model, ytd-shorts-lockup-view-model',
   shelf: 'grid-shelf-view-model, yt-grid-shelf-view-model, ytd-rich-section-renderer, ytd-rich-shelf-renderer, ytd-shelf-renderer',
   card: 'ytd-rich-item-renderer, ytd-video-renderer, ytd-grid-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model',
-  navigation: 'ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer, yt-tab-shape, tp-yt-paper-tab, [role="tab"]',
+  navigation: 'ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer, yt-guide-entry-view-model, yt-mini-guide-entry-view-model, yt-tab-shape, tp-yt-paper-tab, [role="tab"]',
   channelSection: 'ytd-rich-grid-renderer, ytd-reel-shelf-renderer, ytd-grid-renderer',
 };
 

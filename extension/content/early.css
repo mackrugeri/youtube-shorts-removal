@@ -11,3 +11,22 @@
 :root[data-shorts-removal-blocked] :is(ytd-shorts, ytd-reel-video-renderer, video) {
   visibility: hidden !important;
 }
+
+/* Collapse sidebar entries before the observer removes their complete item. */
+:root:not([data-shorts-removal-off]) :is(
+  ytd-guide-entry-renderer,
+  ytd-mini-guide-entry-renderer,
+  yt-guide-entry-view-model,
+  yt-mini-guide-entry-view-model
+):has(a:is(
+  [href="/shorts"],
+  [href^="/shorts/"],
+  [href^="/shorts?"],
+  [href^="/shorts#"],
+  [href="https://www.youtube.com/shorts"],
+  [href^="https://www.youtube.com/shorts/"],
+  [href^="https://www.youtube.com/shorts?"],
+  [href^="https://www.youtube.com/shorts#"]
+)) {
+  display: none !important;
+}

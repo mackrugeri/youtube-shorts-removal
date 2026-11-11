@@ -30,7 +30,7 @@ Channel matching uses the channel link exposed on a card. Alternate handle/ID UR
 
 ## Ad cleanup
 
-Known sponsored feed/search cards, banner ads and watch-page companion ads are suppressed early and removed with their dedicated card wrappers. Ad overlays are hidden. The extension activates YouTube's Skip ad control when it becomes available. This cleanup runs independently of the Hide Shorts setting.
+Known sponsored feed/search cards, YouTube Premium promotional banners and watch-page companion ads are suppressed early and removed with their dedicated card wrappers. Empty dedicated promotion sections are collapsed while neighboring ordinary videos remain visible. Ad overlays are hidden. The extension activates YouTube's Skip ad control when it becomes available. This cleanup runs independently of the Hide Shorts setting.
 
 Unskippable video ads may still play. New YouTube ad layouts need selector updates. Fixture tests verify that regular videos, including titles that mention sponsorship, remain visible.
 

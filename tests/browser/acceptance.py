@@ -139,6 +139,7 @@ with tempfile.TemporaryDirectory() as profile:
             call('Page.navigate', {'url': 'https://www.youtube.com/'}, target=True)
             wait("document.querySelector('#normal-card') && !document.querySelector('#shelf, #short-card, #short-guide')")
             assert evaluate("Boolean(document.querySelector('#normal-guide'))")
+            wait('!document.querySelector("#short-guide, #mini-shorts, #modern-shorts, #modern-mini-shorts")')
             wait('!document.querySelector("#sponsored-card, #sponsored-search, #masthead-ad, #player-ads")')
             wait('!document.querySelector("#premium-promo-section, #mixed-premium-banner")')
             assert evaluate('Boolean(document.querySelector("#mixed-promo-section #normal-promo-neighbor"))')
@@ -151,8 +152,13 @@ with tempfile.TemporaryDirectory() as profile:
             evaluate("document.querySelector('#mixed').insertAdjacentHTML('beforeend', '<ytd-rich-item-renderer id=late><a href=/shorts/late>Late</a></ytd-rich-item-renderer>')")
             wait("!document.querySelector('#late')")
             document_requests.clear()
-            call('Page.navigate', {'url': 'https://www.youtube.com/shorts/test?feature=share#demo'}, target=True)
-            wait("location.pathname === '/' && document.querySelector('#normal-card')")
+            for blocked_url in [
+                'https://www.youtube.com/shorts',
+                'https://www.youtube.com/shorts?feature=guide#feed',
+                'https://www.youtube.com/shorts/test?feature=share#demo',
+            ]:
+                call('Page.navigate', {'url': blocked_url}, target=True)
+                wait("location.pathname === '/' && document.querySelector('#normal-card')")
             assert evaluate('location.href') == 'https://www.youtube.com/'
             assert document_requests and all('/shorts/' not in request for request in document_requests), document_requests
             evaluate("history.pushState({}, '', '/watch?v=normal')")
@@ -274,6 +280,23 @@ with tempfile.TemporaryDirectory() as profile:
             session = returning_feed_session
             wait('document.querySelectorAll("[data-focus-filter-hidden]").length === 0')
             print('PASS: removing saved rules restores matching cards in another open tab')
+
+            # Reloading an extension invalidates scripts left in already-open pages.
+            evaluate('document.querySelector("#focus-first [data-block-channel]").focus()')
+            press(' ', 'Space', 32)
+            wait('document.querySelector("#focus-filter-dialog")?.open')
+            assert call('Extensions.loadUnpacked', {'path': str(extension_dir)})['id'] == extension
+            evaluate('document.querySelector("#focus-filter-dialog [type=submit]").focus()')
+            press(' ', 'Space', 32)
+            wait('document.querySelector("#focus-filter-reload")?.hidden === false')
+            assert evaluate('document.querySelector("#focus-filter-dialog [type=submit]").disabled')
+            assert evaluate('!document.querySelector(".focus-filter-error").textContent.includes("context invalidated")')
+            evaluate('document.querySelector("#focus-filter-reload").focus()')
+            press(' ', 'Space', 32)
+            wait('document.querySelectorAll("[data-focus-filter-controls]").length === 6 && !document.querySelector("#focus-filter-dialog")?.open')
+            save_block('focus-first', True, 'prank')
+            wait('document.querySelector("#focus-first").hasAttribute("data-focus-filter-hidden")')
+            print('PASS: stale extension scripts offer reload and channel saving works afterward')
 
         except Exception:
             log.seek(0)
