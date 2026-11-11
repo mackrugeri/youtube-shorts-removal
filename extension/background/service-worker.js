@@ -65,9 +65,7 @@ chrome.runtime.onStartup.addListener(reconcileRules);
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
   const { type, hideShorts } = message ?? {};
   const fromPopup = sender.url === chrome.runtime.getURL('popup/popup.html');
-  const fromSearchControl = type === 'settings:set' && sender.id === chrome.runtime.id &&
-    sender.frameId === 0 && sender.tab && parse(sender.url);
-  if (!fromPopup && !fromSearchControl) return;
+  if (!fromPopup) return;
   if (type !== 'settings:get' &&
       !(type === 'settings:set' && typeof hideShorts === 'boolean')) return;
 
