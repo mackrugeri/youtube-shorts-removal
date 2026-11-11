@@ -28,6 +28,12 @@ Blocks persist in `chrome.storage.local` in the same Chrome profile after closin
 
 Channel matching uses the channel link exposed on a card. Alternate handle/ID URLs for the same channel require separate entries when their identity cannot be resolved locally. Filtering covers recognized feed, search and recommendation cards. Live YouTube layouts still need validation. Direct video playback is outside this channel-filtering feature.
 
+## Ad cleanup
+
+Known sponsored feed/search cards, banner ads and watch-page companion ads are suppressed early and removed with their dedicated card wrappers. Ad overlays are hidden. The extension activates YouTube's Skip ad control when it becomes available. This cleanup runs independently of the Hide Shorts setting.
+
+Unskippable video ads may still play. New YouTube ad layouts need selector updates. Fixture tests verify that regular videos, including titles that mention sponsorship, remain visible.
+
 ## Initial decisions
 
 Desktop Chromium Manifest V3 first, with Chrome as the reference browser. Default Hide Shorts to on after successful installation initialization. Store the preference locally and apply it to all supported tabs. Use early CSS to reduce flashes, then physically remove confirmed dedicated Shorts containers. Use declarative network redirects plus content-script and navigation guards for direct routes. Redirect to the fixed YouTube homepage, never to a normal watch URL for the same video.

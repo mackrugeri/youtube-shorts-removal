@@ -139,6 +139,13 @@ with tempfile.TemporaryDirectory() as profile:
             call('Page.navigate', {'url': 'https://www.youtube.com/'}, target=True)
             wait("document.querySelector('#normal-card') && !document.querySelector('#shelf, #short-card, #short-guide')")
             assert evaluate("Boolean(document.querySelector('#normal-guide'))")
+            wait('!document.querySelector("#sponsored-card, #sponsored-search, #masthead-ad, #player-ads")')
+            wait('document.querySelector("#movie_player").dataset.skipped === "true"')
+            assert evaluate('Boolean(document.querySelector("#ordinary-player")) && Boolean(document.querySelector("#organic-sponsor-title"))')
+            evaluate("""document.querySelector('#mixed').insertAdjacentHTML('beforeend',
+                '<ytd-rich-item-renderer id="late-ad"><ad-slot-renderer>Sponsored</ad-slot-renderer></ytd-rich-item-renderer>')""")
+            wait('!document.querySelector("#late-ad")')
+            print('PASS: sponsored cards and ad containers removed, available skip used, ordinary videos preserved')
             evaluate("document.querySelector('#mixed').insertAdjacentHTML('beforeend', '<ytd-rich-item-renderer id=late><a href=/shorts/late>Late</a></ytd-rich-item-renderer>')")
             wait("!document.querySelector('#late')")
             document_requests.clear()

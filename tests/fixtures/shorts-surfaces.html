@@ -11,3 +11,18 @@
 </grid-shelf-view-model>
 <ytd-guide-entry-renderer id="short-guide"><a href="/shorts">Shorts</a></ytd-guide-entry-renderer>
 <ytd-guide-entry-renderer id="normal-guide"><a href="/feed/subscriptions">Subscriptions</a></ytd-guide-entry-renderer>
+<ytd-rich-item-renderer id="sponsored-card">
+  <ytd-ad-slot-renderer><h3>Sponsored hosting</h3><button>Visit site</button></ytd-ad-slot-renderer>
+</ytd-rich-item-renderer>
+<ytd-video-renderer id="sponsored-search">
+  <a href="/watch?v=sponsored">Ad result</a><yt-ad-badge-view-model>Sponsored</yt-ad-badge-view-model>
+</ytd-video-renderer>
+<div id="masthead-ad">Banner ad</div>
+<div id="player-ads">Companion ad</div>
+<ytd-rich-item-renderer id="organic-sponsor-title">
+  <h3><a href="/watch?v=organic">How sponsored advertising works</a></h3>
+</ytd-rich-item-renderer>
+<div id="movie_player" class="ad-showing">
+  <video id="ordinary-player"></video>
+  <button class="ytp-skip-ad-button" onclick="this.parentElement.classList.remove('ad-showing');this.parentElement.dataset.skipped='true'">Skip ad</button>
+</div>

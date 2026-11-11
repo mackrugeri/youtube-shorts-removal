@@ -42,11 +42,13 @@
         "shared/routes.js",
         "shared/filters.js",
         "shared/selectors.js",
+        "content/ads.js",
         "content/content.js",
         "content/search-control.js",
         "content/channel-filters.js"
       ],
       "css": [
+        "content/ads.css",
         "content/early.css",
         "content/search-control.css",
         "content/channel-filters.css"

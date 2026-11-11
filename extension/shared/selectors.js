@@ -5,3 +5,8 @@ globalThis.shortsSelectors = {
   navigation: 'ytd-guide-entry-renderer, ytd-mini-guide-entry-renderer, yt-tab-shape, tp-yt-paper-tab, [role="tab"]',
   channelSection: 'ytd-rich-grid-renderer, ytd-reel-shelf-renderer, ytd-grid-renderer',
 };
+
+globalThis.youtubeAdSelectors = {
+  units: 'ytd-ad-slot-renderer, ad-slot-renderer, yt-ad-slot-view-model, ytd-display-ad-renderer, ytd-in-feed-ad-layout-renderer, ytd-promoted-video-renderer, ytd-promoted-sparkles-web-renderer, ytd-promoted-sparkles-text-search-renderer, ytd-action-companion-ad-renderer, ytd-companion-slot-renderer, yt-ad-badge-view-model, .ytwAdBadgeViewModelHost, #masthead-ad, #player-ads',
+  wrappers: 'ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model',
+};

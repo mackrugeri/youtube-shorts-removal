@@ -1,0 +1,32 @@
+/* Suppress known ad units before the DOM cleanup removes their outer cards. */
+:is(
+  ytd-ad-slot-renderer,
+  ad-slot-renderer,
+  yt-ad-slot-view-model,
+  ytd-display-ad-renderer,
+  ytd-in-feed-ad-layout-renderer,
+  ytd-promoted-video-renderer,
+  ytd-promoted-sparkles-web-renderer,
+  ytd-promoted-sparkles-text-search-renderer,
+  ytd-action-companion-ad-renderer,
+  ytd-companion-slot-renderer,
+  #masthead-ad,
+  #player-ads,
+  .ytp-ad-overlay-container
+),
+:is(ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model):has(
+  :is(
+    ytd-ad-slot-renderer,
+    ad-slot-renderer,
+    yt-ad-slot-view-model,
+    ytd-display-ad-renderer,
+    ytd-in-feed-ad-layout-renderer,
+    ytd-promoted-video-renderer,
+    ytd-promoted-sparkles-web-renderer,
+    ytd-promoted-sparkles-text-search-renderer,
+    yt-ad-badge-view-model,
+    .ytwAdBadgeViewModelHost
+  )
+) {
+  display: none !important;
+}
