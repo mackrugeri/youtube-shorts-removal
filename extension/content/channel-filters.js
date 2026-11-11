@@ -6,6 +6,8 @@
   let frame = 0;
   let selection;
   let opener;
+  let saving = false;
+  let contextInvalidated = false;
 
   const dialog = document.createElement('dialog');
   dialog.id = 'focus-filter-dialog';
@@ -20,6 +22,7 @@
       <p class="focus-filter-error" role="alert"></p>
       <div class="focus-filter-actions">
         <button type="button">Cancel</button>
+        <button type="button" id="focus-filter-reload" hidden>Reload YouTube</button>
         <button type="submit">Save block</button>
       </div>
     </form>`;
@@ -28,6 +31,21 @@
   const save = dialog.querySelector('[type="submit"]');
   const cancel = dialog.querySelector('[type="button"]');
   const error = dialog.querySelector('.focus-filter-error');
+  const reload = dialog.querySelector('#focus-filter-reload');
+
+  function needsReload(failure) {
+    return !chrome.runtime?.id || /extension context invalidated/i.test(failure?.message ?? '');
+  }
+
+  function showReloadRequired() {
+    contextInvalidated = true;
+    error.textContent = 'The extension was updated or reloaded. Reload YouTube, then try saving again. Your existing saved blocks are safe.';
+    save.hidden = true;
+    save.disabled = true;
+    reload.hidden = false;
+  }
+
+  reload.addEventListener('click', () => location.reload());
 
   function controlsHost(card) {
     // Keep actions inside the metadata flow. Adding a second child to YouTube's
@@ -81,12 +99,17 @@
     error.textContent = '';
     if (!dialog.isConnected) document.body.append(dialog);
     dialog.showModal();
-    keywords.focus();
+    if (contextInvalidated || needsReload()) {
+      showReloadRequired();
+      reload.focus();
+    } else {
+      keywords.focus();
+    }
   }
 
   cancel.addEventListener('click', () => dialog.close());
   dialog.addEventListener('cancel', (event) => {
-    if (save.disabled) event.preventDefault();
+    if (saving) event.preventDefault();
   });
   dialog.addEventListener('close', () => {
     if (opener?.isConnected && !opener.closest('[data-focus-filter-hidden]')) opener.focus();
@@ -94,6 +117,11 @@
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!event.isTrusted || save.disabled || !selection) return;
+    if (needsReload()) {
+      showReloadRequired();
+      reload.focus();
+      return;
+    }
     const words = policy.parseKeywords(keywords.value);
     if (words.length > 12 || words.some((word) => word.length < 2 || word.length > 80)) {
       error.textContent = 'Use up to 12 keywords or phrases, each between 2 and 80 characters.';
@@ -101,6 +129,7 @@
     }
 
     save.disabled = true;
+    saving = true;
     cancel.disabled = true;
     error.textContent = '';
     save.textContent = 'Saving…';
@@ -117,9 +146,15 @@
       setFilters(reply.filters);
       dialog.close();
     } catch (failure) {
-      error.textContent = failure.message;
+      if (needsReload(failure)) {
+        showReloadRequired();
+        reload.focus();
+      } else {
+        error.textContent = failure.message;
+      }
     } finally {
-      save.disabled = false;
+      saving = false;
+      save.disabled = contextInvalidated;
       cancel.disabled = false;
       save.textContent = 'Save block';
     }
@@ -205,7 +240,12 @@
   async function refresh() {
     try {
       setFilters(await policy.read());
-    } catch {
+    } catch (failure) {
+      if (needsReload(failure)) {
+        contextInvalidated = true;
+        if (dialog.open) showReloadRequired();
+        return;
+      }
       // Leave videos visible when saved filters cannot be read.
       filters = undefined;
       queue(document.documentElement);

@@ -9,4 +9,5 @@ globalThis.shortsSelectors = {
 globalThis.youtubeAdSelectors = {
   units: 'ytd-ad-slot-renderer, ad-slot-renderer, yt-ad-slot-view-model, ytd-display-ad-renderer, ytd-in-feed-ad-layout-renderer, ytd-promoted-video-renderer, ytd-promoted-sparkles-web-renderer, ytd-promoted-sparkles-text-search-renderer, ytd-action-companion-ad-renderer, ytd-companion-slot-renderer, yt-ad-badge-view-model, .ytwAdBadgeViewModelHost, #masthead-ad, #player-ads',
   wrappers: 'ytd-rich-item-renderer, ytd-video-renderer, ytd-compact-video-renderer, yt-lockup-view-model',
+  promotions: 'ytd-banner-promo-renderer, ytd-statement-banner-renderer, yt-mealbar-promo-renderer, ytd-primetime-promo-renderer',
 };

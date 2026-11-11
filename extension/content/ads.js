@@ -1,5 +1,6 @@
 (() => {
-  const { units, wrappers } = globalThis.youtubeAdSelectors;
+  const { units, wrappers, promotions } = globalThis.youtubeAdSelectors;
+  const allUnits = units + ', ' + promotions;
   const pending = new Set();
   let frame = 0;
   let attemptedSkip;
@@ -8,7 +9,9 @@
     if (!unit.isConnected) return;
     // Remove the ad's dedicated card, not a surrounding feed or mixed section.
     const card = unit.closest(wrappers);
-    (card ?? unit).remove();
+    const section = unit.closest('ytd-rich-section-renderer');
+    const promoSection = section && !section.querySelector(wrappers + ', ytd-rich-grid-media');
+    (card ?? (promoSection ? section : unit)).remove();
   }
 
   function flush() {
@@ -24,8 +27,8 @@
 
   function scan(root) {
     if (!(root instanceof Element)) return;
-    if (root.matches(units)) pending.add(root);
-    for (const unit of root.querySelectorAll(units)) pending.add(unit);
+    if (root.matches(allUnits)) pending.add(root);
+    for (const unit of root.querySelectorAll(allUnits)) pending.add(unit);
     if (!frame && pending.size) frame = requestAnimationFrame(flush);
   }
 

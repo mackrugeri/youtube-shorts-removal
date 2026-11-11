@@ -88,5 +88,11 @@
 #focus-filter-dialog .focus-filter-error { color: #c53852; }
 .focus-filter-actions { display: flex; justify-content: flex-end; gap: 8px; }
 #focus-filter-dialog [type="submit"] { background: #6733c3; border-color: #6733c3; color: white; }
+#focus-filter-dialog #focus-filter-reload {
+  background: #6733c3;
+  border-color: #6733c3;
+  color: white;
+}
+#focus-filter-dialog [hidden] { display: none !important; }
 #focus-filter-dialog :focus-visible,
 [data-focus-filter-controls] :focus-visible { outline: 2px solid #9561ea; outline-offset: 3px; }

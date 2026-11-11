@@ -140,6 +140,8 @@ with tempfile.TemporaryDirectory() as profile:
             wait("document.querySelector('#normal-card') && !document.querySelector('#shelf, #short-card, #short-guide')")
             assert evaluate("Boolean(document.querySelector('#normal-guide'))")
             wait('!document.querySelector("#sponsored-card, #sponsored-search, #masthead-ad, #player-ads")')
+            wait('!document.querySelector("#premium-promo-section, #mixed-premium-banner")')
+            assert evaluate('Boolean(document.querySelector("#mixed-promo-section #normal-promo-neighbor"))')
             wait('document.querySelector("#movie_player").dataset.skipped === "true"')
             assert evaluate('Boolean(document.querySelector("#ordinary-player")) && Boolean(document.querySelector("#organic-sponsor-title"))')
             evaluate("""document.querySelector('#mixed').insertAdjacentHTML('beforeend',
