@@ -1,4 +1,5 @@
 import '../shared/routes.js';
+import '../shared/filters.js';
 
 import { readSettings, SETTINGS_KEY } from '../shared/settings.js';
 
@@ -85,6 +86,25 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
     respond,
     () => respond({ error: 'settings-unavailable' }),
   );
+  return true;
+});
+
+chrome.runtime.onMessage.addListener((message, sender, respond) => {
+  if (!['filters:get', 'filters:change'].includes(message?.type)) return;
+  const fromPopup = sender.url === chrome.runtime.getURL('popup/popup.html');
+  const fromPage = sender.id === chrome.runtime.id && sender.frameId === 0 &&
+    sender.tab && parse(sender.url);
+  if (!fromPopup && !fromPage) return;
+
+  serialize(async () => {
+    const current = await globalThis.focusFilters.read();
+    if (message.type === 'filters:get') return { filters: current };
+    const filters = globalThis.focusFilters.change(current, message.action);
+    await chrome.storage.local.set({ [globalThis.focusFilters.key]: filters });
+    return { filters };
+  }).then(respond, () => respond({
+    error: 'Could not save filters. Check your entries and try again. Each list supports up to 500 entries.',
+  }));
   return true;
 });
 

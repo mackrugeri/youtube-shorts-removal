@@ -6,6 +6,7 @@
   <title>YouTube Shorts Removal</title>
   <link rel="stylesheet" href="popup.css">
   <script src="popup.js" type="module"></script>
+  <script src="filters-panel.js" type="module"></script>
 </head>
 <body>
   <main>
@@ -52,7 +53,15 @@
       </section>
     </section>
 
-    <footer>Your preference stays in this browser.</footer>
+    <details class="saved-filters">
+      <summary>Saved blocks <span id="filters-count"></span></summary>
+      <p>Use Hide video or Block channel below a YouTube video. Review its suggested keywords before saving.</p>
+      <p>Channels, videos and keywords are saved separately. Remove any rules that still match a video to show it again.</p>
+      <div id="filters-lists"></div>
+      <p id="filters-status" role="status"></p>
+      <button type="button" id="filters-retry" hidden>Retry loading blocks</button>
+    </details>
+    <footer>Settings and blocks stay in this Chrome profile.</footer>
   </main>
 </body>
 </html>

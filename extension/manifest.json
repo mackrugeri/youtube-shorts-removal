@@ -40,13 +40,16 @@
       ],
       "js": [
         "shared/routes.js",
+        "shared/filters.js",
         "shared/selectors.js",
         "content/content.js",
-        "content/search-control.js"
+        "content/search-control.js",
+        "content/channel-filters.js"
       ],
       "css": [
         "content/early.css",
-        "content/search-control.css"
+        "content/search-control.css",
+        "content/channel-filters.css"
       ],
       "run_at": "document_start"
     }

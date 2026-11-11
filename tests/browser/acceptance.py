@@ -212,6 +212,78 @@ with tempfile.TemporaryDirectory() as profile:
             call('Page.reload', {}, target=True)
             wait("document.querySelector('#status')?.textContent === 'Hide Shorts is on.'")
             print('PASS: popup reports applied state after reopening')
+            fixture = Path('tests/fixtures/channel-filters.html').read_bytes()
+            session = youtube_session
+            call('Target.activateTarget', {'targetId': tab})
+            call('Page.navigate', {'url': 'https://www.youtube.com/'}, target=True)
+            wait('document.querySelectorAll("[data-focus-filter-controls]").length === 6')
+
+            def save_block(card, channel, words):
+                selector = '[data-block-channel]' if channel else 'button:first-child'
+                evaluate(f'document.querySelector("#{card} [data-focus-filter-controls] {selector}").focus()')
+                press(' ', 'Space', 32)
+                wait('document.querySelector("#focus-filter-dialog")?.open')
+                suggestions = evaluate('document.querySelector("#focus-filter-keywords").value')
+                assert suggestions, 'Title keyword suggestions are missing'
+                evaluate('document.querySelector("#focus-filter-keywords").value = ' + json.dumps(words))
+                evaluate('document.querySelector("#focus-filter-dialog [type=submit]").focus()')
+                press(' ', 'Space', 32)
+                wait('!document.querySelector("#focus-filter-dialog").open')
+
+            save_block('focus-first', False, 'prank')
+            wait('document.querySelector("#focus-first").hasAttribute("data-focus-filter-hidden") && document.querySelector("#focus-related").hasAttribute("data-focus-filter-hidden")')
+            assert evaluate('!document.querySelector("#focus-normal").hasAttribute("data-focus-filter-hidden") && !document.querySelector("#focus-substring").hasAttribute("data-focus-filter-hidden")')
+            save_block('focus-channel', True, 'gardening')
+            wait('document.querySelector("#focus-channel").hasAttribute("data-focus-filter-hidden") && document.querySelector("#focus-gardening").hasAttribute("data-focus-filter-hidden")')
+            call('Page.reload', target=True)
+            wait('document.querySelector("#focus-first")?.hasAttribute("data-focus-filter-hidden") && document.querySelector("#focus-channel")?.hasAttribute("data-focus-filter-hidden")')
+            print('PASS: user actions save channel/video blocks and cross-channel keywords after reload')
+
+            session = popup_session
+            previous_load = evaluate('performance.timeOrigin')
+            call('Page.reload', target=True)
+            wait(f'performance.timeOrigin !== {previous_load} && document.readyState === "complete"')
+            evaluate('document.querySelector(".saved-filters").open = true')
+            wait('document.querySelector("#filters-count")?.textContent === "(4)"')
+            saved = evaluate('chrome.runtime.sendMessage({type:"filters:get"}).then(reply => reply.filters)')
+            assert len(saved['channels']) == 1 and len(saved['videos']) == 1
+            assert saved['keywords'] == ['prank', 'gardening']
+
+            # Restart the browser against the same profile and unpacked extension.
+            browser.terminate()
+            browser.wait(timeout=5)
+            browser = subprocess.Popen(browser.args, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=log)
+            buf = b''
+            session = None
+            assert call('Extensions.loadUnpacked', {'path': str(extension_dir)})['id'] == extension
+            restart_tab = call('Target.createTarget', {'url': url})['targetId']
+            session = call('Target.attachToTarget', {'targetId': restart_tab, 'flatten': True})['sessionId']
+            wait('document.querySelector(".saved-filters")')
+            persisted = evaluate('chrome.runtime.sendMessage({type:"filters:get"}).then(reply => reply.filters)')
+            assert persisted == saved, (persisted, saved)
+            restarted_popup_session = session
+            tab = call('Target.createTarget', {'url': 'about:blank'})['targetId']
+            session = call('Target.attachToTarget', {'targetId': tab, 'flatten': True})['sessionId']
+            call('Target.activateTarget', {'targetId': tab})
+            call('Fetch.enable', {'patterns': [{'urlPattern':'*://*.youtube.com/*', 'resourceType':'Document'}]}, target=True)
+            call('Page.navigate', {'url': 'https://www.youtube.com/'}, target=True)
+            wait('document.querySelector("#focus-first")?.hasAttribute("data-focus-filter-hidden") && document.querySelector("#focus-channel")?.hasAttribute("data-focus-filter-hidden")')
+            assert evaluate('!document.querySelector("#focus-normal").hasAttribute("data-focus-filter-hidden")')
+            print('PASS: saved blocks survive a real Chrome restart and filter the returning feed')
+
+            returning_feed_session = session
+            session = restarted_popup_session
+            evaluate('document.querySelector(".saved-filters").open = true')
+            wait('document.querySelector("#filters-count")?.textContent === "(4)"')
+            # Remove each rule through the management UI. Storage events update the open feed.
+            for _ in range(4):
+                evaluate('document.querySelector("#filters-lists button").click()')
+                wait('document.querySelector("#filters-status")?.textContent === "Block removed."')
+            wait('document.querySelector("#filters-count")?.textContent === "(0)"')
+            session = returning_feed_session
+            wait('document.querySelectorAll("[data-focus-filter-hidden]").length === 0')
+            print('PASS: removing saved rules restores matching cards in another open tab')
+
         except Exception:
             log.seek(0)
             print(log.read().decode(errors='replace')[-2500:])

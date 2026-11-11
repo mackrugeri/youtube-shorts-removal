@@ -16,7 +16,17 @@ To try the extension, open Chrome's Extensions page, enable Developer mode, and 
 
 ## Run the checks
 
-From the project root, run `node tests/unit/routes.test.js` for URL fixtures and `python3 tests/browser/acceptance.py` for a headless Chrome smoke test using a temporary profile. On systems where Chrome is installed elsewhere, set `CHROME_BIN` to its executable. The browser test serves controlled YouTube fixtures and does not use a signed-in profile.
+From the project root, run `node tests/unit/routes.test.js` for URL fixtures, `node tests/unit/filters.test.js` for filter rules, and `python3 tests/browser/acceptance.py` for a headless Chrome smoke test using a temporary profile. On systems where Chrome is installed elsewhere, set `CHROME_BIN` to its executable. The browser test serves controlled YouTube fixtures and includes a restart against the same temporary profile to verify saved blocks.
+
+## Saved channel, video and keyword blocks
+
+Recognized video cards have **Hide video** and **Block channel** controls. Before saving, review the keywords suggested from the title. Saving adds the selected video or channel and the edited keywords together. Titles containing any saved word or phrase are hidden across channels, using case-insensitive whole-word matching. Related words and synonyms can be added manually.
+
+Open **Saved blocks** in the extension popup to review and remove individual rules. Removing a rule updates open supported pages. A video stays hidden while any remaining rule matches it. These filters operate independently of the Hide Shorts switch.
+
+Blocks persist in `chrome.storage.local` in the same Chrome profile after closing tabs, restarting Chrome or updating the extension. Uninstalling the extension or deleting its storage/profile erases them. The extension stores only the channel links/names, video IDs/titles and keywords you choose to block. Separate browsers and devices have separate lists.
+
+Channel matching uses the channel link exposed on a card. Alternate handle/ID URLs for the same channel require separate entries when their identity cannot be resolved locally. Filtering covers recognized feed, search and recommendation cards. Live YouTube layouts still need validation. Direct video playback is outside this channel-filtering feature.
 
 ## Initial decisions
 

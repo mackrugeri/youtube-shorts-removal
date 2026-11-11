@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<title>Channel filtering fixtures</title>
+<body>
+<ytd-masthead><div id="center"><input aria-label="Search"><button id="voice-search">Voice search</button></div></ytd-masthead>
+<ytd-rich-item-renderer id="focus-first">
+  <h3><a id="video-title" href="/watch?v=prankVideo1">Epic prank compilation</a></h3>
+  <a href="/@unwanted">Unwanted Channel</a>
+</ytd-rich-item-renderer>
+<ytd-video-renderer id="focus-related">
+  <h3><a id="video-title" href="/watch?v=otherPrank1">Another PRANK revealed</a></h3>
+  <a href="/@another">Another Channel</a>
+</ytd-video-renderer>
+<ytd-compact-video-renderer id="focus-channel">
+  <h3><a id="video-title" href="/watch?v=gardenVideo">Gardening tutorials</a></h3>
+  <a href="/@unwanted">Unwanted Channel</a>
+</ytd-compact-video-renderer>
+<yt-lockup-view-model id="focus-gardening">
+  <h3><a href="/watch?v=gardenOther">Gardening tips</a></h3>
+  <a href="/channel/UCAnother">Different Channel</a>
+</yt-lockup-view-model>
+<ytd-rich-item-renderer id="focus-normal">
+  <h3><a id="video-title" href="/watch?v=codeLesson1">Python coding lesson</a></h3>
+  <a href="/@learning">Learning Channel</a>
+</ytd-rich-item-renderer>
+<ytd-rich-item-renderer id="focus-substring">
+  <h3><a id="video-title" href="/watch?v=biography01">Prankster biography</a></h3>
+  <a href="/@biography">Biography Channel</a>
+</ytd-rich-item-renderer>
+</body>
+</html>

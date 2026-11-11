@@ -65,7 +65,9 @@ Browser-level disabling/uninstalling the extension cannot reliably restore alrea
 
 ## Privacy, accessibility and compatibility
 
-Process page structure locally, without storing page titles, video IDs, URLs or account data. Optional development diagnostics contain aggregate counts and rule identifiers only, stay local and are off in production. No network selector download, analytics or backend. Use packaged executable resources and restrictive extension-page CSP.
+Process page structure locally. User-selected channel blocks store channel links/names, hidden-video rules store video IDs/titles, and keyword rules store the reviewed title words. These lists live in extension local storage until removed, with no general browsing history or account data collected. Optional development diagnostics contain aggregate counts and rule identifiers only, stay local and are off in production. No network selector download, analytics or backend. Use packaged executable resources and restrictive extension-page CSP.
+
+Saved focus filters use a separate versioned storage key and share the worker's serialized write queue. Adding a channel/video and its reviewed keywords is one storage write. Content scripts reapply the latest saved revision on startup, storage updates, SPA changes and page restoration. Matching outer video cards are collapsed with an extension-owned attribute, which can be removed when a saved rule changes. The popup manages channels, videos and keywords individually. The feature operates independently of Shorts route enforcement.
 
 Removed nodes must disappear from layout, tab order and accessibility tree. If focused content is removed, move focus to a stable visible page landmark without repeatedly stealing focus. The popup switch exposes checked state, accessible name, keyboard activation, visible focus and pending/error announcements. Explain reload behavior in plain language.
 
